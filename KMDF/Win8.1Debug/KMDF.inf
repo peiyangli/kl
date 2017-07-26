@@ -1,0 +1,91 @@
+;
+; KMDF.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=KMDF ; TODO: edit Class
+ClassGuid={09C3B1C0-489B-438F-B8C1-AD1D44FFA2AB} ; TODO: edit ClassGuid
+Provider=%openset%
+CatalogFile=KMDF.cat
+DriverVer=02/05/2016,9.32.34.628
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=SampleClassReg
+
+[SampleClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+KMDF.sys  = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NTx86
+
+[Standard.NTx86]
+%KMDF.DeviceDesc%=KMDF_Device, Root\KMDF ; TODO: edit hw-id
+
+[KMDF_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+KMDF.sys
+
+;-------------- Service installation
+[KMDF_Device.NT.Services]
+AddService = KMDF,%SPSVCINST_ASSOCSERVICE%, KMDF_Service_Inst
+
+; -------------- KMDF driver install sections
+[KMDF_Service_Inst]
+DisplayName    = %KMDF.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\KMDF.sys
+LoadOrderGroup = Extended Base
+
+;
+;--- KMDF_Device Coinstaller installation ------
+;
+
+[DestinationDirs]
+KMDF_Device_CoInstaller_CopyFiles = 11
+
+[KMDF_Device.NT.CoInstallers]
+AddReg=KMDF_Device_CoInstaller_AddReg
+CopyFiles=KMDF_Device_CoInstaller_CopyFiles
+
+[KMDF_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller01011.dll,WdfCoInstaller"
+
+[KMDF_Device_CoInstaller_CopyFiles]
+WdfCoInstaller01011.dll
+
+[SourceDisksFiles]
+WdfCoInstaller01011.dll=1 ; make sure the number matches with SourceDisksNames
+
+[KMDF_Device.NT.Wdf]
+KmdfService =  KMDF, KMDF_wdfsect
+[KMDF_wdfsect]
+KmdfLibraryVersion = 1.11
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="openset" ; TODO: add ManufacturerName
+ClassName="KMDF" ; TODO: edit ClassName
+DiskName = "KMDF Installation Disk"
+KMDF.DeviceDesc = "KMDF Device"
+KMDF.SVCDESC = "KMDF Service"
