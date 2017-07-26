@@ -16,7 +16,7 @@ Environment:
 
 #define INITGUID
 
-#include <ntddk.h>
+#include <ntifs.h>
 #include <wdf.h>
 
 #include "device.h"

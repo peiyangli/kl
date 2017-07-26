@@ -5,8 +5,8 @@
 [Version]
 Signature="$WINDOWS NT$"
 Class=
-ClassGuid={1421DEA5-CA7D-45B6-BB8F-E46D1BC5816E}
-Provider=
+ClassGuid={FC744C97-4AE4-49C3-96E2-C51C96E5D24A}
+Provider="pei"
 DriverVer=
 CatalogFile=
 

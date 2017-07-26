@@ -5,9 +5,9 @@
 [Version]
 Signature="$WINDOWS NT$"
 Class=
-ClassGuid=
-Provider=
-DriverVer=02/24/2016,11.33.31.507
+ClassGuid={FC744C97-4AE4-49C3-96E2-C51C96E5D24A}
+Provider="pei"
+DriverVer=09/09/2016,14.22.23.270
 CatalogFile=
 
 [DestinationDirs]

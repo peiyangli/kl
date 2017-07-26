@@ -3,77 +3,77 @@
 namespace skl{
 
 	//////////////////////////////////////////////////////////////////////////
-	template<class _BaseType> class _AtomicInt32
+	template<class _Ty> class _atomic_int32
 	{
 	private:
 		mutable long m_Value;
 
 	public:
-		typedef _BaseType _UnderlyingType;
+		typedef _Ty _UnderlyingType;
 
-		_AtomicInt32(_BaseType val) { m_Value = val; C_ASSERT(sizeof(m_Value) == sizeof(_BaseType)); }
-		_AtomicInt32(){}
-		operator _BaseType() { return m_Value; }
+		_atomic_int32(_Ty val) { m_Value = val; C_ASSERT(sizeof(m_Value) == sizeof(_Ty)); }
+		_atomic_int32(){}
+		operator _Ty() { return m_Value; }
 
-		_BaseType load()const{ return _InterlockedOr(&m_Value, 0); }
-		_BaseType store(_BaseType v){ return _InterlockedExchange(&m_Value, v); }
-		_BaseType operator++() { return _InterlockedIncrement(&m_Value); }
-		_BaseType operator++(int) { return _InterlockedIncrement(&m_Value) - 1; }
-		_BaseType operator--() { return _InterlockedDecrement(&m_Value); }
-		_BaseType operator--(int) { return _InterlockedDecrement(&m_Value) + 1; }
-		_BaseType operator+=(_BaseType v) { return _InterlockedExchangeAdd(&m_Value, v) + v; }
-		_BaseType operator-=(_BaseType v) { return _InterlockedExchangeAdd(&m_Value, -v) - v; }
+		_Ty load()const{ return _InterlockedOr(&m_Value, 0); }
+		_Ty store(_Ty v){ return _InterlockedExchange(&m_Value, v); }
+		_Ty operator++() { return _InterlockedIncrement(&m_Value); }
+		_Ty operator++(int) { return _InterlockedIncrement(&m_Value) - 1; }
+		_Ty operator--() { return _InterlockedDecrement(&m_Value); }
+		_Ty operator--(int) { return _InterlockedDecrement(&m_Value) + 1; }
+		_Ty operator+=(_Ty v) { return _InterlockedExchangeAdd(&m_Value, v) + v; }
+		_Ty operator-=(_Ty v) { return _InterlockedExchangeAdd(&m_Value, -v) - v; }
 
-		_BaseType operator|=(_BaseType v) { return _InterlockedOr(&m_Value, v) | v; }
-		_BaseType operator&=(_BaseType v) { return _InterlockedAnd(&m_Value, v) & v; }
-		_BaseType operator^=(_BaseType v) { return _InterlockedXor(&m_Value, v) ^ v; }
+		_Ty operator|=(_Ty v) { return _InterlockedOr(&m_Value, v) | v; }
+		_Ty operator&=(_Ty v) { return _InterlockedAnd(&m_Value, v) & v; }
+		_Ty operator^=(_Ty v) { return _InterlockedXor(&m_Value, v) ^ v; }
 
-		_BaseType GetAndOr(_BaseType v) { return _InterlockedOr(&m_Value, v); }
-		_BaseType GetAndAnd(_BaseType v) { return _InterlockedAnd(&m_Value, v); }
-		_BaseType GetAndXor(_BaseType v) { return _InterlockedXor(&m_Value, v); }
+		_Ty GetAndOr(_Ty v) { return _InterlockedOr(&m_Value, v); }
+		_Ty GetAndAnd(_Ty v) { return _InterlockedAnd(&m_Value, v); }
+		_Ty GetAndXor(_Ty v) { return _InterlockedXor(&m_Value, v); }
 
-		bool CompareAndExchange(_BaseType oldVal, _BaseType newVal) { return _InterlockedCompareExchange(&m_Value, newVal, oldVal) == oldVal; }
+		bool CompareAndExchange(_Ty oldVal, _Ty newVal) { return _InterlockedCompareExchange(&m_Value, newVal, oldVal) == oldVal; }
 	};
 
 	//#ifdef BZSLIB64
-	template<class _BaseType> class _AtomicInt64
+	template<class _Ty> class _atomic_int64
 	{
 	private:
 		mutable LONGLONG m_Value;
 
 	public:
-		typedef _BaseType _UnderlyingType;
+		typedef _Ty _UnderlyingType;
 
-		_AtomicInt64(_BaseType val) { m_Value = val; C_ASSERT(sizeof(m_Value) == sizeof(_BaseType)); }
-		_AtomicInt64(){}
-		operator _BaseType() { return m_Value; }
+		_atomic_int64(_Ty val) { m_Value = val; C_ASSERT(sizeof(m_Value) == sizeof(_Ty)); }
+		_atomic_int64(){}
+		operator _Ty() { return m_Value; }
 
-		_BaseType load()const{ return _InterlockedOr64(&m_Value, 0); }
-		_BaseType store(_BaseType v){ return _InterlockedExchange64(&m_Value, v); }
-		_BaseType operator++() { return _InterlockedIncrement64(&m_Value); }
-		_BaseType operator++(int) { return _InterlockedIncrement64(&m_Value) - 1; }
-		_BaseType operator--() { return _InterlockedDecrement64(&m_Value); }
-		_BaseType operator--(int) { return _InterlockedDecrement64(&m_Value) + 1; }
-		_BaseType operator+=(_BaseType v) { return _InterlockedExchangeAdd64(&m_Value, v) + v; }
-		_BaseType operator-=(_BaseType v) { return _InterlockedExchangeAdd64(&m_Value, -v) - v; }
+		_Ty load()const{ return _InterlockedOr64(&m_Value, 0); }
+		_Ty store(_Ty v){ return _InterlockedExchange64(&m_Value, v); }
+		_Ty operator++() { return _InterlockedIncrement64(&m_Value); }
+		_Ty operator++(int) { return _InterlockedIncrement64(&m_Value) - 1; }
+		_Ty operator--() { return _InterlockedDecrement64(&m_Value); }
+		_Ty operator--(int) { return _InterlockedDecrement64(&m_Value) + 1; }
+		_Ty operator+=(_Ty v) { return _InterlockedExchangeAdd64(&m_Value, v) + v; }
+		_Ty operator-=(_Ty v) { return _InterlockedExchangeAdd64(&m_Value, -v) - v; }
 
-		_BaseType operator|=(_BaseType v) { return _InterlockedOr64(&m_Value, v) | v; }
-		_BaseType operator&=(_BaseType v) { return _InterlockedAnd64(&m_Value, v) & v; }
-		_BaseType operator^=(_BaseType v) { return _InterlockedXor64(&m_Value, v) ^ v; }
+		_Ty operator|=(_Ty v) { return _InterlockedOr64(&m_Value, v) | v; }
+		_Ty operator&=(_Ty v) { return _InterlockedAnd64(&m_Value, v) & v; }
+		_Ty operator^=(_Ty v) { return _InterlockedXor64(&m_Value, v) ^ v; }
 
-		_BaseType GetAndOr(_BaseType v) { return _InterlockedOr64(&m_Value, v); }
-		_BaseType GetAndAnd(_BaseType v) { return _InterlockedAnd64(&m_Value, v); }
-		_BaseType GetAndXor(_BaseType v) { return _InterlockedXor64(&m_Value, v); }
+		_Ty GetAndOr(_Ty v) { return _InterlockedOr64(&m_Value, v); }
+		_Ty GetAndAnd(_Ty v) { return _InterlockedAnd64(&m_Value, v); }
+		_Ty GetAndXor(_Ty v) { return _InterlockedXor64(&m_Value, v); }
 
-		bool CompareAndExchange(_BaseType oldVal, _BaseType newVal) { return _InterlockedCompareExchange64(&m_Value, newVal, oldVal) == oldVal; }
+		bool CompareAndExchange(_Ty oldVal, _Ty newVal) { return _InterlockedCompareExchange64(&m_Value, newVal, oldVal) == oldVal; }
 	};
 
 
-	typedef _AtomicInt32<int> AtomicInt32;
-	typedef _AtomicInt32<unsigned> AtomicUInt32;
+	typedef _atomic_int32<int> atomic_int32;
+	typedef _atomic_int32<unsigned> atomic_uint32;
 
-	typedef _AtomicInt64<long long> AtomicInt64;
-	typedef _AtomicInt64<unsigned long long> AtomicUInt64;
+	typedef _atomic_int64<long long> atomic_int64;
+	typedef _atomic_int64<unsigned long long> atomic_uint64;
 
 
 }//namespace skl

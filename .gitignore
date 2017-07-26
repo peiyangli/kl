@@ -6,6 +6,9 @@
 *.user
 *.sln.docstates
 
+#
+*.lib
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -182,5 +185,9 @@ $RECYCLE.BIN/
 *.tlog
 *.tmh
 /PerformanceOptimize/新建文件夹
-/Win7Debug
+/Win7Release
 /Win8.1Debug
+/Win8.1Release
+/Win8Debug
+/Win8Release
+/Win7Debug

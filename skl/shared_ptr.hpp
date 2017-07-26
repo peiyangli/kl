@@ -1,9 +1,20 @@
+/*////////////////////////////////////////////////////////
+(c)22016
+filename: shared_ptr.hpp
+author: pei
+version: 0.0.1
+date:
+description: shared_ptr
+function/class list:
+history:
+////////////////////////////////////////////////////////*/
+
 #pragma once
 
-#include "kernel.hpp"
+#include "kernel.h"
 
 #include "atomic.hpp"
-
+#include "lookaside_atomic.hpp"
 // 
 // 
 // //////////////////////////////////////////////////////////////////////////
@@ -195,9 +206,14 @@
 // #pragma pack(pop)
 
 #include "type_traits.hpp"
-
+//#include <wdm.h>
+#include<ntddk.h>
 //////////////////////////////////////////////////////////////////////////
 namespace skl{
+
+
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	template<class T> inline void checked_delete(T * x)
@@ -207,22 +223,82 @@ namespace skl{
 		(void) sizeof(type_must_be_complete);
 		delete x;
 	}
+
+	template<typename T>
+	class unique_ptr{
+		typedef unique_ptr<T> this_type;
+
+		T* _ptr;
+
+		unique_ptr(const unique_ptr&) = delete;
+		unique_ptr& operator=(const unique_ptr&) = delete;
+	public:
+		unique_ptr(T* ptr) :_ptr(ptr){
+		}
+		~unique_ptr(){
+			if (_ptr) checked_delete(_ptr);
+		}
+		unique_ptr(unique_ptr&&) :_ptr(r._ptr){
+			r._ptr = 0;
+		}
+		unique_ptr& operator=(unique_ptr&& r){
+			r.swap(*this);
+			return *this;
+		}
+
+		void swap(unique_ptr& r) {
+			if (this == &r)return;
+			T* ptr = r._ptr;
+			r._ptr = _ptr;
+			_ptr = ptr;
+		}
+		T& operator *() const {
+			return *_ptr;
+		}
+		T* operator ->() const {
+			return _ptr;
+		}
+		T* get() const {
+			return _ptr;
+		}
+		T* detach(){
+			auto temp = _ptr;
+			_ptr = 0;
+			return temp;
+		}
+		explicit operator bool() const{
+			return _ptr != 0;
+		}
+	};
+
+
 	//////////////////////////////////////////////////////////////////////////
 	template<typename T>
 	class shared_ptr{
 
-		static const int value = sizeof(T);
+		//static const int value = sizeof(T);
 
 		friend class helper;
 
 		typedef shared_ptr<T> this_type;
 
-		T* _ptr;
-		AtomicUInt32* _pn;
+		template<class _Ty0>
+		friend class shared_ptr;
 
-		shared_ptr(T* ptr, AtomicUInt32* pn) :_ptr(ptr), _pn(pn){}
+		T* _ptr;
+		//AtomicUInt32* _pn;
+		runtime::none_page_atomic_unsigned* _pn;
+
+		shared_ptr(T* ptr, runtime::none_page_atomic_unsigned* pn) :_ptr(ptr), _pn(pn){}
+
+		void dec(){
+			if (_pn && --*_pn == 0) {
+				if (_ptr)checked_delete(_ptr);
+				delete _pn;
+			}
+		}
 	public:
-		int getV(){ return value; }
+		//int getV(){ return value; }
 		shared_ptr() :_ptr(0), _pn(0){}
 		shared_ptr(const shared_ptr& r) :_ptr(r._ptr), _pn(r._pn){//copy
 			if (_pn)(*_pn)++;
@@ -232,14 +308,12 @@ namespace skl{
 			r._pn = 0;
 		}
 		~shared_ptr(){
-			if (_pn && --*_pn == 0) {
-				checked_delete(_ptr);
-				delete _pn;
-			}
+			dec();
 		}
+
 		void swap(shared_ptr& r) {
 			T* ptr = r._ptr;
-			AtomicUInt32* pn = r._pn;
+			auto* pn = r._pn;
 			r._ptr = _ptr;
 			r._pn = _pn;
 			_ptr = ptr;
@@ -249,6 +323,38 @@ namespace skl{
 			this_type(r).swap(*this);
 			return *this;
 		}
+
+		shared_ptr& operator=(shared_ptr&& r) {
+			r.swap(*this);
+			return *this;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		//child
+		template <class TChild>
+		shared_ptr(const shared_ptr<TChild>& r) :_ptr(r._ptr), _pn(r._pn){//copy
+			if (_pn)(*_pn)++;
+		}
+		template <class TChild>
+		shared_ptr(shared_ptr<TChild>&& r) : _ptr(r._ptr), _pn(r._pn){//rref copy
+			r._ptr = 0;
+			r._pn = 0;
+		}
+		template <class TChild>
+		shared_ptr& operator=(const shared_ptr<TChild>& r) {
+			this_type(r).swap(*this);
+			return *this;
+		}
+
+		template <class TChild>
+		shared_ptr& operator=(shared_ptr<TChild>&& r) {
+			dec();
+			_ptr = r._ptr; _pn = r._pn;
+			r._ptr = 0;
+			r._pn = 0;
+			return *this;
+		}
+		//////////////////////////////////////////////////////////////////////////
 
 		
 		//check null before call
@@ -272,16 +378,17 @@ namespace skl{
 #pragma warning(push)
 #pragma warning(disable: 4127) // while (false);
 
+	//add allocator/deallocator
 	class helper{
 	public:
 		template<class _Ty, POOL_TYPE poolType, 
 		class... _Types> static inline
 			shared_ptr<_Ty> make_shared(_Types&&... _Args)
 		{	// make a shared_ptr
-				AtomicUInt32* ref = nullptr;
+			runtime::none_page_atomic_unsigned* ref = nullptr;
 				do
 				{
-					ref = new (poolType)AtomicUInt32(1);
+					ref = new runtime::none_page_atomic_unsigned(1);//better from lookaside
 					if (!ref)break;
 					_Ty* ptr = new (poolType)_Ty(forward<_Types>(_Args)...);
 					if (!ptr)break;
@@ -295,10 +402,10 @@ namespace skl{
 		class... _Types> static inline
 			shared_ptr<_Ty> make_shared(_Types&&... _Args)
 		{	// make a shared_ptr
-				AtomicUInt32* ref = nullptr;
+			runtime::none_page_atomic_unsigned* ref = nullptr;
 				do
 				{
-					ref = new AtomicUInt32(1);
+					ref = new runtime::none_page_atomic_unsigned(1);//better from lookaside, and maybe non-page memory
 					if (!ref)break;
 					_Ty* ptr = new _Ty(forward<_Types>(_Args)...);
 					if (!ptr)break;
@@ -313,10 +420,10 @@ namespace skl{
 		template<class _Ty, int size, POOL_TYPE poolType = NonPagedPool> static inline
 			shared_ptr<_Ty> make_shared_array()
 		{	// make a shared_ptr
-				AtomicUInt32* ref = nullptr;
+			runtime::none_page_atomic_unsigned* ref = nullptr;
 				do
 				{
-					ref = new (poolType)AtomicUInt32(1);
+					ref = new runtime::none_page_atomic_unsigned(1);
 					if (!ref)break;
 					_Ty* ptr = new (poolType)_Ty[size];
 					if (!ptr)break;
@@ -327,8 +434,26 @@ namespace skl{
 		}
 	};
 
+	template<class _Ty, POOL_TYPE poolType,
+	class... _Types> inline
+		shared_ptr<_Ty> make_shared(_Types&&... _Args)
+	{
+		return helper::make_shared<_Ty, poolType>(_Args...);
+	}
+
+	template<class _Ty,
+	class... _Types> inline
+		shared_ptr<_Ty> make_shared(_Types&&... _Args)
+	{
+		return helper::make_shared<_Ty>(_Args...);
+	}
+
+	template<class _Ty, int size, POOL_TYPE poolType = NonPagedPool> inline
+		shared_ptr<_Ty> make_shared_array()
+	{
+		return helper::make_shared_array<_Ty, Size, poolType>();
+	}
 	//#pragma warning(enable: 4127) // while (false);
 #pragma warning(pop)
 
 }//namespace skl
-

@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -35,8 +32,12 @@
     <ClInclude Include="list.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Flags.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="config.ini" />
+    <None Include="ReadMe.md" />
   </ItemGroup>
 </Project>

@@ -15,8 +15,8 @@ Reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%sysname%" /v Disp
 Reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%sysname%" /v Start /t REG_DWORD /d 3
 Reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%sysname%" /v Type /t REG_DWORD /d 1
 
-::Reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%sysname%\Parameters\Wdf" /v WdfMajorVersion /t REG_DWORD /d 1
-::Reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%sysname%\Parameters\Wdf" /v WdfMinorVersion /t REG_DWORD /d 9
+Reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%sysname%\Parameters\Wdf" /v WdfMajorVersion /t REG_DWORD /d 1
+Reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%sysname%\Parameters\Wdf" /v WdfMinorVersion /t REG_DWORD /d 9
 ::Reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%sysname%\Parameters\Wdf" /v TimeOfLastSqmLog /t REG_QWORD /d 0
 
 net start %sysname%

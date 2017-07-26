@@ -83,10 +83,10 @@ KmdfService =  KMDF, KMDF_wdfsect
 KmdfLibraryVersion = $KMDFVERSION$
 
 [Strings]
-openset="openset"
 SPSVCINST_ASSOCSERVICE= 0x00000002
 ManufacturerName="openset" ; TODO: add ManufacturerName
 ClassName="KMDF" ; TODO: edit ClassName
+openset="openset"
 DiskName = "KMDF Installation Disk"
 KMDF.DeviceDesc = "KMDF Device"
 KMDF.SVCDESC = "KMDF Service"

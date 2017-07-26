@@ -1,57 +1,60 @@
-#include "kernel.hpp"
+#include "kernel.h"
 
 
+#include"globle_runtime.h"
 
-#define DEF_ALLOCAL_TAG 'IEPK'
-#define DBG_TAG "[SKL]"
+//#pragma warning(push)
+#pragma warning(disable: 4127) // while (false);
+#pragma warning(disable: 4316)
+//#pragma warning(pop)
+namespace skl{
+	namespace runtime{
+		GlobleRuntime* gInstanceGlobleRuntime;
 
-void* __cdecl operator new(size_t iSize) 
-{
-	PVOID result = ExAllocatePoolWithTag(NonPagedPool, iSize, DEF_ALLOCAL_TAG); //PagedPool
-	if (result) {
-		RtlZeroMemory(result, iSize);
+		NTSTATUS RunTimeInit(){
+			NTSTATUS status = STATUS_UNSUCCESSFUL;
+			do
+			{
+				gInstanceGlobleRuntime = new GlobleRuntime;
+				if (!gInstanceGlobleRuntime){
+					status = STATUS_INSUFFICIENT_RESOURCES;
+					break;
+				}
+				status = STATUS_SUCCESS;
+			} while (false);
+			return status;
+		}
+
+		//call when exit/unload driver
+		NTSTATUS RunTimeUnInit(){
+			NTSTATUS status = STATUS_UNSUCCESSFUL;
+			do
+			{
+				if (gInstanceGlobleRuntime){
+					delete gInstanceGlobleRuntime;
+				}
+				status = STATUS_SUCCESS;
+			} while (false);
+			return status;
+		}
 	}
-#if DBG
-	else {
-		KdPrint((DBG_TAG"Couldn't new NonPagedPool: %I64d bytes", iSize));
+#define DELAY_ONE_MICROSECOND 	(-10)
+#define DELAY_ONE_MILLISECOND	(DELAY_ONE_MICROSECOND*1000)
+	VOID SleepFor(LONG msec)
+	{
+		if (msec == 0)return;
+		LARGE_INTEGER my_interval;
+		my_interval.QuadPart = DELAY_ONE_MILLISECOND;
+		my_interval.QuadPart *= msec;
+		KeDelayExecutionThread(KernelMode, 0, &my_interval);
 	}
-#endif // DBG
-	return result;
-}
 
-PVOID __cdecl operator new(size_t    iSize,
-POOL_TYPE poolType)
-{
-	PVOID result = ExAllocatePoolWithTag(poolType, iSize, DEF_ALLOCAL_TAG);
-	if (result) {
-		RtlZeroMemory(result, iSize);
+	VOID SleepFor100ns(LONG ns100)
+	{
+		if (ns100 <= 0)return;
+		LARGE_INTEGER my_interval;
+		//my_interval.QuadPart = -1;
+		my_interval.QuadPart = -ns100;
+		KeDelayExecutionThread(KernelMode, 0, &my_interval);
 	}
-#if DBG
-	else {
-		KdPrint((DBG_TAG"Couldn't new poolType(%d): %I64d bytes", (ULONG)poolType, iSize));
-	}
-#endif // DBG
-
-	return result;
-}
-
-PVOID __cdecl operator new(size_t      iSize,
-POOL_TYPE   poolType,
-ULONG       tag)
-{
-	PVOID result = ExAllocatePoolWithTag(poolType, iSize, tag);
-	if (result) {
-		RtlZeroMemory(result, iSize);
-	}
-#if DBG
-	else {
-		KdPrint((DBG_TAG"Couldn't new tagged poolType(%d): %I64d bytes", (ULONG)poolType, iSize));
-	}
-#endif // DBG
-	return result;
-}
-
-void __cdecl operator delete(PVOID pVoid)
-{
-	ExFreePool(pVoid);
 }

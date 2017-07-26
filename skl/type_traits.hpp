@@ -1,3 +1,15 @@
+/*////////////////////////////////////////////////////////
+(c)22016
+filename: type_traits.hpp
+author: pei/from vs
+version: 0.0.1
+date:
+description: type_traits
+function/class list:
+history:
+////////////////////////////////////////////////////////*/
+
+
 #pragma once
 
 

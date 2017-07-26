@@ -8,7 +8,7 @@ Class=KMDF ; TODO: edit Class
 ClassGuid={09C3B1C0-489B-438F-B8C1-AD1D44FFA2AB} ; TODO: edit ClassGuid
 Provider=%openset%
 CatalogFile=KMDF.cat
-DriverVer=03/14/2016,11.44.36.759
+DriverVer=09/09/2016,14.22.23.434
 
 [DestinationDirs]
 DefaultDestDir = 12
@@ -83,10 +83,10 @@ KmdfService =  KMDF, KMDF_wdfsect
 KmdfLibraryVersion = 1.9
 
 [Strings]
-openset="openset"
 SPSVCINST_ASSOCSERVICE= 0x00000002
 ManufacturerName="openset" ; TODO: add ManufacturerName
 ClassName="KMDF" ; TODO: edit ClassName
+openset="openset"
 DiskName = "KMDF Installation Disk"
 KMDF.DeviceDesc = "KMDF Device"
 KMDF.SVCDESC = "KMDF Service"
