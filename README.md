@@ -224,6 +224,8 @@
 	uc;
 ```
 
+### debug ###
+* VirtualKD  windbg  虚拟机
 
 ### testing ###
 * not well tested
